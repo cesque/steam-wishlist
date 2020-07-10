@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata:400,700&subset=latin' rel='stylesheet' type='text/css'>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app"> 
+        <div class="display" v-bind:class="{ 'display-start': list.length == 0 }">
+            <div class="total-text">Total:</div>
+            <div class="total">{{ total }}</div>
+            <div class="start" v-if="list.length == 0">
+                <div class="seperator"></div>
+                <div class="explanation">
+                    <ol>
+                        <li>click the following to copy it to the clipboard: 
+                            <code v-on:click="copyCode" v-bind:class="{ 'copied': copiedCode }">
+                                {{ code }}
+                                <div v-if="copiedCode" class="code-copied-overlay">copied!</div>
+                            </code></li>
+                        <li>go to <a target="_blank" href="https://steamcommunity.com/my/wishlist/">https://steamcommunity.com/my/wishlist/</a></li>
+                        <li>paste the code into the console and execute it (this will automatically copy wishlist data to your clipboard)</li>
+                        <li>paste the wishlist data into the text box below</li>
+                    </ol>
+                </div>
+                <input type="text" v-model="input" v-on:paste="paste">
+            </div>
+
+            <div class="controls" v-if="list.length > 0">
+                <div class="controls-buttons">
+                    <button class="select-all" v-on:click="selectAll">select all</button>
+                    <button class="deselect-all" v-on:click="deselectAll">deselect all</button>
+                </div>
+                <div class="controls-sort">
+                    <select class="controls-sort-key" v-model="sortKey">
+                        <option v-for="option in sortKeys" v-bind:value="option">
+                            {{ option.value }}
+                        </option>
+                    </select>
+                    <select class="controls-sort-order" v-model="sortOrder">
+                            <option value="asc">asc</option>
+                            <option value="desc">desc</option>
+                    </select>
+                </div>
+                <div class="controls-filters">
+                    <label class="filter-checkbox">
+                        <input type="checkbox" name="checkbox" v-model="showOnlyDiscounted">
+                        <div class="filter-checkbox-text">only show discounted games</div>
+                    </label>
+                    <input class="filter-text" type="text" v-model="nameFilter" placeholder="filter by name">
+                </div>
+                <button class="copy-wishlist-text" v-on:click="copyWishlistText">{{ copiedWishlistText ? 'copied!' : 'copy wishlist text' }}</button>
+                <!-- <button class="copy-add-to-cart-code" v-on:click="copyAddToCartCode">{{ copiedAddToCartCode ? 'copied!' : 'copy \'add to cart\' code' }}</button> -->
+            </div>
+
+        </div>
+
+        <div class="list">
+            <ol class="list">
+                <li class="game" v-for="game in sortedList" v-bind:class="{ 'selected': selected.includes(game.id) }" v-on:click="click(game.id)">
+                    <div class="index">{{ game.priority == 0 ? '-' : game.priority }}</div>
+                    <a class="image" v-bind:href="game.link">
+                        <img v-bind:src="game.image">
+                    </a>
+                    <div class="price" v-bind:class="{ 'discounted': game.discount > 0 }">
+                        <div class="price-text">
+                            {{ game.priceString }}
+                        </div>
+                        <div class="price-discount" v-if="game.discount > 0">
+                            {{ game.discount }}%
+                        </div>
+                    </div>
+                    <div class="name">{{ game.name }}</div>
+                </li>
+            </ol>
+        </div>
+
+        <div v-if="error" class="error">
+            An error occurred while trying to parse your input! Check the console for more info
+        </div>
+
+        <div class="credit">a tool by <a href="https://twitter.com/cesque">@cesque</a></div>
+
+    </div>
+</body>
+</html>
